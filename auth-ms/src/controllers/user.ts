@@ -8,6 +8,7 @@ import { IVerifyOptions } from "passport-local";
 import { WriteError } from "mongodb";
 import { check, sanitize, validationResult } from "express-validator";
 import "../config/passport";
+import jsonwebtoken from "jsonwebtoken";
 
 /**
  * GET /login
@@ -21,7 +22,23 @@ export const getLogin = (req: Request, res: Response) => {
         title: "Login"
     });
 };
-
+function issueJWT(user: UserDocument) {
+    const _id = user._id;
+  
+    const expiresIn = "1d";
+  
+    const payload = {
+      sub: _id,
+     // iat: Date.now()
+    };
+  
+    const signedToken = jsonwebtoken.sign(payload, "secret", { expiresIn: expiresIn});
+  
+    return {
+      token:  signedToken,
+      expires: expiresIn
+    };
+  }
 /**
  * POST /login
  * Sign in using email and password.
@@ -39,7 +56,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         return res.redirect("/login");
     }
 
-    passport.authenticate("local", (err: Error, user: UserDocument, info: IVerifyOptions) => {
+    passport.authenticate("local",{session: false}, (err: Error, user: UserDocument, info: IVerifyOptions) => {
         if (err) { return next(err); }
         if (!user) {
             req.flash("errors", {msg: info.message});
@@ -48,7 +65,24 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         req.logIn(user, (err) => {
             if (err) { return next(err); }
             req.flash("success", { msg: "Success! You are logged in." });
+            const tokenObject = issueJWT(user);
+
+            //res.status(200).json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
+           // res.setHeader("Authorization", tokenObject.token);
+           console.log("token is",tokenObject.token);
+            res.cookie( "Authorization", tokenObject.token);
             res.redirect(req.session.returnTo || "/");
+          /* res.send({
+            message: "Logged In Successfully!",
+            redirect: "/",
+            jwtToken: "JWT " + tokenObject.token,
+            success: true,
+            user: {
+                email: user.email,
+                name: user.profile.name
+            }
+        });*/
+
         });
     })(req, res, next);
 };
@@ -106,10 +140,14 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
         }
         user.save((err) => {
             if (err) { return next(err); }
-            req.logIn(user, (err) => {
+            req.logIn(user,{session: false}, (err) => {
                 if (err) {
                     return next(err);
                 }
+                const tokenObject = issueJWT(user);
+
+               res.header( "x-authorization", tokenObject.token );
+               
                 res.redirect("/");
             });
         });

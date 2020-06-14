@@ -1,5 +1,6 @@
 import passport from "passport";
 import passportLocal from "passport-local";
+import passportJwt from "passport-jwt";
 import passportFacebook from "passport-facebook";
 import _ from "lodash";
 
@@ -9,6 +10,9 @@ import { Request, Response, NextFunction } from "express";
 
 const LocalStrategy = passportLocal.Strategy;
 const FacebookStrategy = passportFacebook.Strategy;
+const JwtStrategy = passportJwt.Strategy;
+const ExtractJwt = passportJwt.ExtractJwt;
+
 
 passport.serializeUser<any, any>((user, done) => {
     done(undefined, user.id);
@@ -40,7 +44,40 @@ passport.use(new LocalStrategy({ usernameField: "email" }, (email, password, don
     });
 }));
 
+const options = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: "secret"
+  };
+passport.use(new JwtStrategy(options, function(jwtPayload: any, done: any) {
 
+    console.log(jwtPayload);
+    
+    // We will assign the `sub` property on the JWT to the database ID of user
+    User.findOne({_id: jwtPayload.sub}, function(err, user) {
+        
+        // This flow look familiar?  It is the same as when we implemented
+        // the `passport-local` strategy
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+           
+            return done(null, user);
+        } else {
+            return done(null, false);
+        }
+        
+    });
+    
+}));
+/*
+passport.use(new JwtStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: "secret"
+}, (token, done) => {
+    return done(null, token);
+}));
+*/
 /**
  * OAuth Strategy Overview
  *
@@ -121,10 +158,39 @@ passport.use(new FacebookStrategy({
  * Login Required middleware.
  */
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
+   // if (req.isAuthenticated()) {
+   //     return next();
+   // }
+ // return next();
+
+ console.log("is auth",req.headers.authorization);
+ /*
+    passport.authenticate("jwt", { session: false, }, async (error, token) => {
+        console.log("token",token);
+        if (error || !token) {
+            res.status(401).json({ message: "Unauthorized" });
+        } 
+        try {
+            const user = await User.findOne({
+                where: { id: token.sub },
+            });
+            req.user = user;
+            res.send({msg:"valid token"});
+        } catch (error) {
+            next(error);
+        }
+        next();
+    })(req, res, next);   
+
+*/
+    passport.authenticate("jwt",{session:false},(err,user)=>{
+        if(err){ res.status(400).json({msg:"invalid token"});}
+        console.log("auth user",user);
+        if(user)
+        res.send({msg:"valid token"});
+        //return  res.status(200).json({msg:"valid token"});
+    })(req, res, next);
+   // res.redirect("/login");
 };
 
 /**
