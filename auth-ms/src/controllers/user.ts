@@ -22,22 +22,19 @@ export const getLogin = (req: Request, res: Response) => {
         title: "Login"
     });
 };
-function issueJWT(user: UserDocument) {
-    const _id = user._id;
-  
+function issueJWT(user: UserDocument) { 
     const expiresIn = "1d";
   
     const payload = {
-      sub: _id,
+      _id: user._id,
+      name: user.profile.name,
+      email: user.email,
+      isAdmin: user.isAdmin
      // iat: Date.now()
     };
   
     const signedToken = jsonwebtoken.sign(payload, "secret", { expiresIn: expiresIn});
-  
-    return {
-      token:  signedToken,
-      expires: expiresIn
-    };
+    return   signedToken;
   }
 /**
  * POST /login
@@ -65,23 +62,35 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         req.logIn(user, (err) => {
             if (err) { return next(err); }
             req.flash("success", { msg: "Success! You are logged in." });
-            const tokenObject = issueJWT(user);
+            const token = issueJWT(user);
 
             //res.status(200).json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
            // res.setHeader("Authorization", tokenObject.token);
-           console.log("token is",tokenObject.token);
-            res.cookie( "Authorization", tokenObject.token);
-            res.redirect(req.session.returnTo || "/");
-          /* res.send({
+           console.log("token is",token);
+           // res.cookie( "Authorization", tokenObject.token);
+           // res.redirect(req.session.returnTo || "/");
+            res
+            .header("x-auth-token", token)
+            .header("access-control-expose-headers", "x-auth-token")
+            .header("Access-Control-Allow-Origin","http://localhost:3000")
+            .send({
+                _id:user._id,
+                email: user.email,
+                name: user.profile.name
+            });
+            /*
+            res.send({
             message: "Logged In Successfully!",
-            redirect: "/",
-            jwtToken: "JWT " + tokenObject.token,
+           // redirect: "/",
+            jwtToken: "Bearer " + tokenObject.token,
             success: true,
             user: {
+                _id:user._id,
                 email: user.email,
                 name: user.profile.name
             }
-        });*/
+        });
+        */
 
         });
     })(req, res, next);
@@ -126,10 +135,13 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
         req.flash("errors", errors.array());
         return res.redirect("/signup");
     }
-
+    console.log("postsignup");
     const user = new User({
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        profile:{
+            name:req.body.name
+        }
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -144,11 +156,17 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
                 if (err) {
                     return next(err);
                 }
-                const tokenObject = issueJWT(user);
-
-               res.header( "x-authorization", tokenObject.token );
-               
-                res.redirect("/");
+                const token = issueJWT(user);
+               console.log("token is",token,user.profile.name);
+                res
+                .header("x-auth-token", token)
+                .header("access-control-expose-headers", "x-auth-token")
+                .header("Access-Control-Allow-Origin","http://localhost:3000")
+                .send({
+                    _id:user._id,
+                    email: user.email,
+                    name: user.profile.name
+                });
             });
         });
     });
