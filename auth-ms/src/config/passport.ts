@@ -50,7 +50,6 @@ const options = {
   };
 passport.use(new JwtStrategy(options, function(jwtPayload: any, done: any) {
 
-    console.log(jwtPayload);
     
     // We will assign the `sub` property on the JWT to the database ID of user
     User.findOne({_id: jwtPayload._id}, function(err, user) {
@@ -163,7 +162,6 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
    // }
  // return next();
  req.headers.authorization=req.header("x-auth-token");
- console.log("is auth",req.headers.authorization);
  
  /*
     passport.authenticate("jwt", { session: false, }, async (error, token) => {
@@ -186,7 +184,6 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 */
     passport.authenticate("jwt",{session:false},(err,user)=>{
         if(err){ res.status(400).json({msg:"invalid token"});}
-        console.log("auth user",user);
         if(user)
         res.send({msg:"valid token"});
         //return  res.status(200).json({msg:"valid token"});
