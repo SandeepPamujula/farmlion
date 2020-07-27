@@ -47,11 +47,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     resave: true,
     saveUninitialized: true,
-    secret: SESSION_SECRET,
-    store: new MongoStore({
+    secret: SESSION_SECRET
+   /* store: new MongoStore({
         url: mongoUrl,
         autoReconnect: true
-    })
+    })*/
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -84,6 +84,7 @@ app.use(
 /**
  * Primary app routes.
  */
+app.get("/auth",passportConfig.isAuthenticated);
 app.get("/", homeController.index);
 app.get("/login", userController.getLogin);
 app.post("/login", userController.postLogin);
@@ -96,7 +97,7 @@ app.get("/signup", userController.getSignup);
 app.post("/signup", userController.postSignup);
 app.get("/contact", contactController.getContact);
 app.post("/contact", contactController.postContact);
-app.get("/account", passportConfig.isAuthenticated, userController.getAccount);
+app.get("/account",passportConfig.isAuthenticated, userController.getAccount);
 app.post("/account/profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post("/account/delete", passportConfig.isAuthenticated, userController.postDeleteAccount);

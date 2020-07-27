@@ -8,6 +8,7 @@ import { IVerifyOptions } from "passport-local";
 import { WriteError } from "mongodb";
 import { check, sanitize, validationResult } from "express-validator";
 import "../config/passport";
+import jsonwebtoken from "jsonwebtoken";
 
 /**
  * GET /login
@@ -21,7 +22,20 @@ export const getLogin = (req: Request, res: Response) => {
         title: "Login"
     });
 };
-
+function issueJWT(user: UserDocument) { 
+    const expiresIn = "1d";
+  
+    const payload = {
+      _id: user._id,
+      name: user.profile.name,
+      email: user.email,
+      isAdmin: user.isAdmin
+     // iat: Date.now()
+    };
+  
+    const signedToken = jsonwebtoken.sign(payload, "secret", { expiresIn: expiresIn});
+    return   signedToken;
+  }
 /**
  * POST /login
  * Sign in using email and password.
@@ -39,7 +53,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         return res.redirect("/login");
     }
 
-    passport.authenticate("local", (err: Error, user: UserDocument, info: IVerifyOptions) => {
+    passport.authenticate("local",{session: false}, (err: Error, user: UserDocument, info: IVerifyOptions) => {
         if (err) { return next(err); }
         if (!user) {
             req.flash("errors", {msg: info.message});
@@ -48,7 +62,36 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         req.logIn(user, (err) => {
             if (err) { return next(err); }
             req.flash("success", { msg: "Success! You are logged in." });
-            res.redirect(req.session.returnTo || "/");
+            const token = issueJWT(user);
+
+            //res.status(200).json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
+           // res.setHeader("Authorization", tokenObject.token);
+           console.log("token is",token);
+           // res.cookie( "Authorization", tokenObject.token);
+           // res.redirect(req.session.returnTo || "/");
+            res
+            .header("x-auth-token", token)
+            .header("access-control-expose-headers", "x-auth-token")
+            .header("Access-Control-Allow-Origin","http://localhost:3000")
+            .send({
+                _id:user._id,
+                email: user.email,
+                name: user.profile.name
+            });
+            /*
+            res.send({
+            message: "Logged In Successfully!",
+           // redirect: "/",
+            jwtToken: "Bearer " + tokenObject.token,
+            success: true,
+            user: {
+                _id:user._id,
+                email: user.email,
+                name: user.profile.name
+            }
+        });
+        */
+
         });
     })(req, res, next);
 };
@@ -92,10 +135,13 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
         req.flash("errors", errors.array());
         return res.redirect("/signup");
     }
-
+    console.log("postsignup");
     const user = new User({
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        profile:{
+            name:req.body.name
+        }
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -106,11 +152,21 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
         }
         user.save((err) => {
             if (err) { return next(err); }
-            req.logIn(user, (err) => {
+            req.logIn(user,{session: false}, (err) => {
                 if (err) {
                     return next(err);
                 }
-                res.redirect("/");
+                const token = issueJWT(user);
+               console.log("token is",token,user.profile.name);
+                res
+                .header("x-auth-token", token)
+                .header("access-control-expose-headers", "x-auth-token")
+                .header("Access-Control-Allow-Origin","http://localhost:3000")
+                .send({
+                    _id:user._id,
+                    email: user.email,
+                    name: user.profile.name
+                });
             });
         });
     });
