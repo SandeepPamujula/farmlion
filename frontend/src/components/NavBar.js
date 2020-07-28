@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 
 const NavBar = ({ user }) => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <Link className="navbar-brand" to="/">
         FarmLion
       </Link>
@@ -43,6 +43,14 @@ const NavBar = ({ user }) => {
             <React.Fragment>
               <NavLink className="nav-item nav-link" to="/profile">
                 {user.name}
+              </NavLink>
+              {user.isAdmin && (
+                <NavLink className="nav-item nav-link" to="/addProduct">
+                  AddProduct
+                </NavLink>
+              )}
+              <NavLink className="nav-item nav-link" to="/cart">
+                Cart
               </NavLink>
               <NavLink className="nav-item nav-link" to="/logout">
                 Logout

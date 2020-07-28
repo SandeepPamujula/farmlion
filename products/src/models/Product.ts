@@ -3,9 +3,11 @@ import mongoose from "mongoose";
 export type ProductDocument = mongoose.Document & {
   productName: String;
   productType: String;
-  description: String;
   numberInStock: Number;
   price: Number;
+  farmerName: String;
+  farmingType: string;
+  location: String;
 };
 
 const productSchema = new mongoose.Schema({
@@ -13,16 +15,6 @@ const productSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    trim: true,
-    minlength: 5,
-    maxlength: 255,
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 5,
-    maxlength: 255,
   },
   numberInStock: {
     type: Number,
@@ -30,6 +22,18 @@ const productSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
+    required: true,
+  },
+  farmerName: {
+    type: String,
+    required: true,
+  },
+  farmingType: {
+    type: String,
+    required: true,
+  },
+  location: {
+    type: String,
     required: true,
   },
 });

@@ -46,16 +46,20 @@ export class ProductRoutes {
       }
     );
     app.post("/product", async (req: Request, res: Response) => {
+      console.log(req.body);
       const product = new Product({
         productName: req.body.productName,
-        productType: req.body.productType,
-        description: req.body.description,
+        productType: req.body.variety,
         price: req.body.price,
-        numberInStock: req.body.numberInStock,
+
+        numberInStock: req.body.quantity,
+        farmerName: req.body.farmerName,
+        farmingType: req.body.farmingType,
+        location: req.body.location,
       });
       console.log("product1", product);
       await Product.find(
-        { productName: req.body.productName },
+        { productName: req.body.productName, farmerName: req.body.farmerName },
         (err: any, existingProducts: any) => {
           if (err) {
             res.send(err);
@@ -74,5 +78,26 @@ export class ProductRoutes {
         }
       );
     });
+    app.get(
+      "/products/:id",
+      this.isAuthorized,
+      async (req: Request, res: Response) => {
+        console.log(req.body);
+        await Product.find(
+          { _id: req.body.params.id },
+          (err: any, existingProducts: ProductDocument) => {
+            if (err) {
+              return err;
+            }
+            if (existingProducts) {
+              console.log("product is " + JSON.stringify(existingProducts));
+              return res
+                .header("Access-Control-Allow-Origin", "http://localhost:3000")
+                .send(JSON.stringify(existingProducts));
+            }
+          }
+        );
+      }
+    );
   }
 }
