@@ -1,11 +1,55 @@
 import React from "react";
+import { Carousel, Container } from "react-bootstrap";
+
+import Products from "./Products";
 
 const Home = () => {
   return (
-    <div>
-      <h1>Home</h1>
-      <p>A Bridge between customers and farmers</p>
-    </div>
+    <Container>
+      <Carousel>
+        <Carousel.Item>
+          <img
+            className="d-block w-100"
+            height={300}
+            src="offer1.jpg"
+            alt="First slide"
+          />
+          <Carousel.Caption>
+            <h3>First slide label</h3>
+            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img
+            className="d-block w-100"
+            height={300}
+            src="offer2.jpg"
+            alt="Third slide"
+          />
+
+          <Carousel.Caption>
+            <h3>Second slide label</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img
+            className="d-block w-100 "
+            height={300}
+            src="offer3.jpg"
+            alt="Third slide"
+          />
+
+          <Carousel.Caption>
+            <h3>Third slide label</h3>
+            <p>
+              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
+            </p>
+          </Carousel.Caption>
+        </Carousel.Item>
+      </Carousel>
+      <Products />
+    </Container>
   );
 };
 

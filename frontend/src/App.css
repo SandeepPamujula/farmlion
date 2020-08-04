@@ -1,3 +1,26 @@
+.myCart {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 550px;
+  left: auto;
+  right: -1px;
+  z-index: 100;
+  position: absolute;
+  display: block;
+}
+.location {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 330px;
+  left: auto;
+  right: -1px;
+  display: block;
+}
+
 .product-container {
   /* CHANGE TO GRID */
   display: grid;

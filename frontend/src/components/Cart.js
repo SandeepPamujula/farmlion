@@ -27,8 +27,8 @@ export const Cart = () => {
             </div>
           </div>
           <div className="col-md-4 item-info">
-            <div class="brand-name">
-              <a href="#">Fresho</a>
+            <div className="brand-name">
+              <a href="/">Fresho</a>
             </div>
             <div className=" product-name">
               <a href="#" className="ng-binding">
@@ -36,7 +36,7 @@ export const Cart = () => {
               </a>
             </div>
           </div>
-          <div class="btn-counter col-md-3">
+          <div className="btn-counter col-md-3">
             <button
               onClick={() => onDelete(item)}
               className="btn btn-secondary btn-sm rounded-circle"
@@ -45,9 +45,8 @@ export const Cart = () => {
             </button>
             <input
               type="text"
-              value={item.quantity}
-              readonly="readonly"
-              className="text-center"
+              defaultValue={item.quantity}
+              className="text-center "
               style={{ width: 40, border: "none" }}
             />
             <button
