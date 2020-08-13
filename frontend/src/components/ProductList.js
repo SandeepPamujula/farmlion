@@ -3,39 +3,26 @@ import { CartContext } from "../context/CartState";
 import _ from "lodash";
 import "../App.css";
 
-function RenderAddButton({ product }) {
-  const { items, addItem, deleteItem } = useContext(CartContext);
+function RenderAddButton({ product, userId }) {
+  const { cart, addItem, deleteItem } = useContext(CartContext);
   const onAdd = (product) => {
-    const currentItem = items.filter((item) => item.id === product._id);
-    console.log(currentItem);
-    if (currentItem[0]) {
-      currentItem[0].quantity += 1;
-      addItem(currentItem[0]);
-    } else {
-      const item = {
-        id: product._id,
-        productName: product.productName,
-        price: product.price,
-        quantity: 1,
-      };
-      addItem(item);
-    }
+    const item = {
+      userId: userId,
+      productId: product._id,
+      productName: product.productName,
+      price: product.price,
+      quantity: 1,
+    };
+    addItem(item);
   };
   const onIncrement = (item) => {
-    item.quantity += 1;
     addItem(item);
   };
   const onDecrement = (item) => {
-    if (item.quantity > 1) {
-      item.quantity -= 1;
-      addItem(item);
-    } else {
-      deleteItem(item.id);
-    }
+    deleteItem(item);
   };
-  const returnItem = (id) => {
-    console.log(_.find(items, ["id", id]));
-    return _.find(items, ["id", id]);
+  const returnItem = (productId) => {
+    return _.find(cart, ["productId", productId]);
   };
   if (returnItem(product._id)) {
     return (
@@ -73,7 +60,7 @@ function RenderAddButton({ product }) {
     );
   }
 }
-export const ProductList = ({ products }) => {
+export const ProductList = ({ products, user }) => {
   return (
     <div className="product-container">
       {products.map((product) => (
@@ -88,7 +75,7 @@ export const ProductList = ({ products }) => {
             <div>MRP: Rs{product.price}/kg</div>
             <span className="">FarmerName: {product.farmerName}</span>
             <span className="">FarmingType: {product.farmingType}</span>
-            <RenderAddButton product={product} />
+            <RenderAddButton product={product} userId={user._id} />
           </div>
         </div>
       ))}

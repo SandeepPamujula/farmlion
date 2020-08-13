@@ -1,57 +1,58 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { CartContext } from "../context/CartState";
 import { getProduct } from "../services/ProductService";
 import "../App.css";
 export const Cart = () => {
-  const { items, addItem, deleteItem } = useContext(CartContext);
+  const { cart, addItem, deleteItem, getCart } = useContext(CartContext);
+  useEffect(() => {
+    if (cart[0] == null) {
+      getCart();
+    }
+  });
   const onAdd = (item) => {
-    item.quantity += 1;
     addItem(item);
   };
   const onDelete = (item) => {
-    if (item.quantity > 1) {
-      item.quantity -= 1;
-      addItem(item);
-    } else {
-      deleteItem(item.id);
-    }
+    deleteItem(item);
   };
+  const handleChange = ({ currentTarget: input }) => {};
 
   return (
     <div className="container item-wrap" style={{ position: "relative" }}>
-      {items.map((item) => (
-        <div key={item.id} className=" row align-items-center border">
+      {cart.map((item) => (
+        <div key={item.productId} className=" row align-items-center border">
           <div className="col-md-2 item-img">
             <div className="row">
               <img src="download.jpg" alt="..." className="img-thumbnail"></img>
             </div>
           </div>
-          <div className="col-md-4 item-info">
+          <div className="col-md-4 ">
             <div className="brand-name">
               <a href="/">Fresho</a>
             </div>
             <div className=" product-name">
-              <a href="#" className="ng-binding">
+              <a href="/" className="">
                 {item.productName}
               </a>
             </div>
           </div>
-          <div className="btn-counter col-md-3">
+          <div className="col-md-3">
             <button
-              onClick={() => onDelete(item)}
               className="btn btn-secondary btn-sm rounded-circle"
+              onClick={() => onDelete(item)}
             >
               -
             </button>
             <input
               type="text"
-              defaultValue={item.quantity}
+              value={item.quantity}
               className="text-center "
+              onChange={handleChange}
               style={{ width: 40, border: "none" }}
             />
             <button
-              onClick={() => onAdd(item)}
               className="btn btn-secondary btn-sm rounded-circle"
+              onClick={() => onAdd(item)}
             >
               +
             </button>

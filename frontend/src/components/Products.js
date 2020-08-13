@@ -55,6 +55,7 @@ class Products extends Component {
     const { pageSize, currentPage } = this.state;
 
     if (count === 0) return <p>There are no products in the database.</p>;
+    console.log("user", this.props.user);
 
     const { totalCount, data: products } = this.getPagedData();
 
@@ -66,7 +67,7 @@ class Products extends Component {
           </div>
           <div className="col-9">
             <p>Showing {totalCount} products in the database.</p>
-            <ProductList products={products} />
+            <ProductList products={products} user={this.props.user} />
             <Pagination
               itemsCount={totalCount}
               pageSize={pageSize}

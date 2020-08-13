@@ -3,7 +3,7 @@ import { Carousel, Container } from "react-bootstrap";
 
 import Products from "./Products";
 
-const Home = () => {
+const Home = ({ user }) => {
   return (
     <Container>
       <Carousel>
@@ -48,7 +48,7 @@ const Home = () => {
           </Carousel.Caption>
         </Carousel.Item>
       </Carousel>
-      <Products />
+      <Products user={user} />
     </Container>
   );
 };

@@ -1,24 +1,47 @@
+const addProductToCart = (product, state) => {
+  const updatedCart = [...state.cart];
+  const updatedItemIndex = updatedCart.findIndex(
+    (item) => item.productId === product.productId
+  );
+
+  if (updatedItemIndex < 0) {
+    updatedCart.push({ ...product, quantity: 1 });
+  } else {
+    const updatedItem = {
+      ...updatedCart[updatedItemIndex],
+    };
+    updatedItem.quantity++;
+    updatedCart[updatedItemIndex] = updatedItem;
+  }
+  return { ...state, cart: updatedCart };
+};
+const removeProductFromCart = (product, state) => {
+  const updatedCart = [...state.cart];
+  const updatedItemIndex = updatedCart.findIndex(
+    (item) => item.productId === product.productId
+  );
+
+  const updatedItem = {
+    ...updatedCart[updatedItemIndex],
+  };
+  updatedItem.quantity--;
+  if (updatedItem.quantity <= 0) {
+    updatedCart.splice(updatedItemIndex, 1);
+  } else {
+    updatedCart[updatedItemIndex] = updatedItem;
+  }
+  return { ...state, cart: updatedCart };
+};
 export default (state, action) => {
   switch (action.type) {
-    case "DELETE_ITEM":
+    case "DELETE_PRODUCT":
+      return removeProductFromCart(action.payload, state);
+    case "ADD_PRODUCT":
+      return addProductToCart(action.payload, state);
+    case "GET_CART":
       return {
         ...state,
-        items: state.items.filter((item) => item.id !== action.payload),
-      };
-    case "ADD_ITEM":
-      /* const items = state.items.map((item) => {
-        if (item.id === action.payload.id) {
-          item.quantity = item.quantity + 1;
-          action.payload = null;
-        }
-      });
-      console.log(items);*/
-      return {
-        ...state,
-        items: [
-          action.payload,
-          ...state.items.filter((item) => item.id !== action.payload.id),
-        ],
+        cart: action.payload,
       };
     default:
       return state;

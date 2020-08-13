@@ -92,7 +92,7 @@ const NavBar = ({ user }) => {
           <h4>BLogo</h4>
         </div>
         <div className="col-md-2">
-          <MyCart />
+          <MyCart user={user} />
         </div>
       </div>
     </React.Fragment>

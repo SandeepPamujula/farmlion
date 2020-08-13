@@ -27,7 +27,7 @@ export class App extends Component {
   render() {
     const { user } = this.state;
     return (
-      <CartProvider>
+      <CartProvider user={user}>
         <BrowserRouter>
           <ToastContainer />
           <NavBar user={user} />
@@ -45,12 +45,18 @@ export class App extends Component {
                         }}
                       />
                     );
-                  return <Products {...props} user={this.state.user} />;
+                  console.log(user);
+                  return <Products {...props} user={user} />;
                 }}
               />
               <Route path="/login" component={LoginForm} />
               <Route path="/logout" component={Logout} />
-              <Route path="/home" component={Home} />
+              <Route
+                path="/home"
+                render={(props) => {
+                  return <Home {...props} user={user} />;
+                }}
+              />
               <Route path="/register" component={RegisterForm} />
               <Route path="/addProduct" component={ProductForm} />
               <Route path="/cart" component={Cart} />

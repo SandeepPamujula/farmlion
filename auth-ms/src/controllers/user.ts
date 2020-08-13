@@ -180,6 +180,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Profile page.
  */
 export const getAccount = (req: Request, res: Response) => {
+    console.log("getaccount");
     res.render("account/profile", {
         title: "Account Management"
     });
