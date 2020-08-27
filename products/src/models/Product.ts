@@ -5,9 +5,7 @@ export type ProductDocument = mongoose.Document & {
   productType: String;
   numberInStock: Number;
   price: Number;
-  farmerName: String;
-  farmingType: string;
-  location: String;
+  farmerMobileNum: String;
 };
 
 const productSchema = new mongoose.Schema({
@@ -24,18 +22,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  farmerName: {
-    type: String,
-    required: true,
-  },
-  farmingType: {
-    type: String,
-    required: true,
-  },
-  location: {
-    type: String,
-    required: true,
-  },
+  farmerMobileNum: String,
 });
 
 export const Product = mongoose.model<ProductDocument>(
