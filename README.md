@@ -69,3 +69,8 @@ farmlion - A destination for smart farmers and customers
 
 
 # Dependency Services
+
+
+#MongoDB seeding
+-npm install -g mongo-seeding-cli
+-seed -u 'mongodb://127.0.0.1:27017/mydb' --drop-database ./example/data

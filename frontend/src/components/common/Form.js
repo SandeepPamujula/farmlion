@@ -44,7 +44,6 @@ class Form extends Component {
 
     const data = { ...this.state.data };
     data[input.name] = input.value;
-
     this.setState({ data, errors });
   };
 
@@ -83,6 +82,29 @@ class Form extends Component {
         onChange={this.handleChange}
         error={errors[name]}
       />
+    );
+  }
+  renderCheckbox(name, label) {
+    const { errors } = this.state;
+    return (
+      <div className="form-group form-check">
+        <input
+          type="checkbox"
+          name={name}
+          onChange={() => {
+            const data = { ...this.state.data };
+            data[name] = !data[name];
+            this.setState({ data });
+          }}
+          className="form-check-input"
+        />
+        <label className="form-check-label" htmlFor="exampleCheck1">
+          {label}
+        </label>
+        {errors[name] && (
+          <div className="alert alert-danger">{errors[name]}</div>
+        )}
+      </div>
     );
   }
 }

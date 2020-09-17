@@ -76,7 +76,8 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
             .send({
                 _id:user._id,
                 email: user.email,
-                name: user.profile.name
+                name: user.profile.name,
+                isAdmin:user.isAdmin
             });
             /*
             res.send({
@@ -125,7 +126,7 @@ export const getSignup = (req: Request, res: Response) => {
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
     await check("email", "Email is not valid").isEmail().run(req);
     await check("password", "Password must be at least 4 characters long").isLength({ min: 4 }).run(req);
-    await check("confirmPassword", "Passwords do not match").equals(req.body.password).run(req);
+    //await check("confirmPassword", "Passwords do not match").equals(req.body.password).run(req);
     // eslint-disable-next-line @typescript-eslint/camelcase
     await sanitize("email").normalizeEmail({ gmail_remove_dots: false }).run(req);
 
@@ -141,7 +142,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
         password: req.body.password,
         profile:{
             name:req.body.name
-        }
+        },
+        isAdmin:req.body.isAdmin
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -165,7 +167,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
                 .send({
                     _id:user._id,
                     email: user.email,
-                    name: user.profile.name
+                    name: user.profile.name,
+                    isAdmin:user.isAdmin
                 });
             });
         });
@@ -177,6 +180,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Profile page.
  */
 export const getAccount = (req: Request, res: Response) => {
+    console.log("getaccount");
     res.render("account/profile", {
         title: "Account Management"
     });

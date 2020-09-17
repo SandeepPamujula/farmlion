@@ -4,10 +4,9 @@ import Form from "./common/Form";
 import * as userService from "../services/UserService";
 import auth from "../services/authService";
 
-
 class RegisterForm extends Form {
   state = {
-    data: { username: "", password: "", name: "" },
+    data: { username: "", password: "", name: "", isAdmin: false },
     errors: {},
   };
 
@@ -15,11 +14,13 @@ class RegisterForm extends Form {
     username: Joi.string().required().email().label("Username"),
     password: Joi.string().required().min(5).label("Password"),
     name: Joi.string().required().label("Name"),
+    isAdmin: Joi.boolean().label("isAdmin"),
   };
 
   doSubmit = async () => {
     try {
       const response = await userService.register(this.state.data);
+      console.log(response);
       auth.loginWithJwt(response.headers["x-auth-token"]);
       window.location = "/";
     } catch (ex) {
@@ -39,6 +40,7 @@ class RegisterForm extends Form {
           {this.renderInput("username", "Username")}
           {this.renderInput("password", "Password", "password")}
           {this.renderInput("name", "Name")}
+          {this.renderCheckbox("isAdmin", "Admin")}
           {this.renderButton("Register")}
         </form>
       </div>

@@ -1,11 +1,12 @@
-import { ProductDocument, Product } from "../models/Product";
 import express, { Application, Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
+import { ProductDocument, Product } from "../models/Product";
+import { FarmerDocument, Farmer } from "../models/Farmer";
 import app from "../app";
+//import { try } from "bluebird";
 export class ProductRoutes {
   private isAuthorized(req: Request, res: Response, next: NextFunction): void {
-    console.log(req.header("x-auth-token"));
     axios
       .get("http://localhost:5001/auth", {
         headers: {
@@ -15,7 +16,6 @@ export class ProductRoutes {
       })
       .then((response: any) => {
         res.status(response.status);
-        console.log(response.status);
         if (response.status == 200) next();
         /*else{
                 response.text().then( (text:string) =>{
@@ -32,47 +32,73 @@ export class ProductRoutes {
       "/products",
       this.isAuthorized,
       async (req: Request, res: Response) => {
-        await Product.find((err: any, existingProducts: ProductDocument) => {
-          if (err) {
-            return err;
-          }
-          if (existingProducts) {
-            console.log("productsList are " + JSON.stringify(existingProducts));
+        try {
+          const products = await Product.aggregate([
+            {
+              $lookup: {
+                from: Farmer.collection.name,
+                localField: "farmerMobileNum",
+                foreignField: "mobileNum",
+                as: "FarmerData",
+              },
+            },
+          ]).exec();
+          if (products) {
             return res
               .header("Access-Control-Allow-Origin", "http://localhost:3000")
-              .send(JSON.stringify(existingProducts));
+              .send(products);
           }
-        });
+        } catch (e) {
+          console.log("exception", e);
+        }
       }
     );
     app.post("/product", async (req: Request, res: Response) => {
       const product = new Product({
         productName: req.body.productName,
-        productType: req.body.productType,
-        description: req.body.description,
+        productType: req.body.variety,
         price: req.body.price,
-        numberInStock: req.body.numberInStock,
+        numberInStock: req.body.quantity,
+        farmerMobileNum: req.body.farmerMobileNum,
       });
-      console.log("product1", product);
+
       await Product.find(
-        { productName: req.body.productName },
+        {
+          productName: req.body.productName,
+          farmerMobileNum: req.body.farmerMobileNum,
+        },
         (err: any, existingProducts: any) => {
           if (err) {
             res.send(err);
           }
-          console.log(existingProducts);
           if (existingProducts[0]) {
-            console.log(existingProducts);
             return res.send({ msg: "product already exists" });
           }
-          console.log("product2", product);
           product.save((err: any) => {
             if (err) res.send(err);
-            console.log("product", product);
             res.send(product);
           });
         }
       );
     });
+    app.get(
+      "/products/:id",
+      this.isAuthorized,
+      async (req: Request, res: Response) => {
+        await Product.find(
+          { _id: req.body.params.id },
+          (err: any, existingProducts: ProductDocument) => {
+            if (err) {
+              return err;
+            }
+            if (existingProducts) {
+              return res
+                .header("Access-Control-Allow-Origin", "http://localhost:3000")
+                .send(JSON.stringify(existingProducts));
+            }
+          }
+        );
+      }
+    );
   }
 }

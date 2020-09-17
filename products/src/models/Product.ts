@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 export type ProductDocument = mongoose.Document & {
   productName: String;
   productType: String;
-  description: String;
   numberInStock: Number;
   price: Number;
+  farmerMobileNum: String;
 };
 
 const productSchema = new mongoose.Schema({
@@ -13,16 +13,6 @@ const productSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    trim: true,
-    minlength: 5,
-    maxlength: 255,
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 5,
-    maxlength: 255,
   },
   numberInStock: {
     type: Number,
@@ -32,6 +22,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  farmerMobileNum: String,
 });
 
 export const Product = mongoose.model<ProductDocument>(

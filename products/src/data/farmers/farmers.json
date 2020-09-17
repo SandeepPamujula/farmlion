@@ -1,0 +1,16 @@
+[
+  {
+    "_id": { "$oid": "5e601e82b3f2a43b5477b647" },
+    "farmerName": "dummysindhu",
+    "farmingType": "natural",
+    "mobileNum": "123456780",
+    "location": "32256"
+  },
+  {
+    "_id": { "$oid": "5e601e8cb3f2a43b5477b648" },
+    "farmerName": "dummydeepu",
+    "farmingType": "natural",
+    "mobileNum": "123456786",
+    "location": "32256"
+  }
+]
